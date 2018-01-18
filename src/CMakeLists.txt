@@ -12,7 +12,6 @@ set(SOURCE
     qrwidget.cpp
     sharedialog.cpp
     editdialog.cpp
-    logdialog.cpp
     connection.cpp
     confighelper.cpp
     urihelper.cpp
@@ -29,7 +28,7 @@ if (WIN32)
     list(APPEND SOURCE ss-qt5.rc)
 endif()
 
-add_executable(${APP_NAME} ${SOURCE})
+add_executable(${APP_NAME} WIN32 ${SOURCE})
 
 target_link_libraries(${APP_NAME}
     PUBLIC Qt5::Core
@@ -45,10 +44,7 @@ target_include_directories(${APP_NAME}
     PRIVATE ${ZBAR_INCLUDE_DIRS})
 
 if (UNIX AND NOT APPLE)
-    target_link_libraries(${APP_NAME}
-        PRIVATE Qt5::DBus
-        PRIVATE ${APPINDICATOR_LIBRARY_VAR})
-    target_include_directories(${APP_NAME} PRIVATE ${APPINDICATOR_INCLUDE_DIRS})
+    target_link_libraries(${APP_NAME} PRIVATE Qt5::DBus)
 endif()
 
 install(TARGETS ${APP_NAME}

@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.1)
 
 project(Shadowsocks-Qt5
-        VERSION 2.10.0
+        VERSION 3.0.0
         LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -21,7 +21,7 @@ if(UNIX AND NOT APPLE)
 endif()
 find_package(PkgConfig)
 
-pkg_check_modules(QSS REQUIRED QtShadowsocks>=1.10.0)
+pkg_check_modules(QSS REQUIRED QtShadowsocks>=2.0.0)
 find_library(QSS_LIBRARY_VAR
     NAMES ${QSS_LIBRARIES}
     HINTS ${QSS_LIBRARY_DIRS} ${QSS_LIBDIR})
@@ -35,13 +35,6 @@ pkg_check_modules(ZBAR REQUIRED zbar)
 find_library(ZBAR_LIBRARY_VAR
     NAMES ${ZBAR_LIBRARIES}
     HINTS ${ZBAR_LIBRARY_DIRS} ${ZBAR_LIBDIR})
-
-if(UNIX AND NOT APPLE)
-    pkg_check_modules(APPINDICATOR REQUIRED appindicator-0.1)
-    find_library(APPINDICATOR_LIBRARY_VAR
-        NAMES ${APPINDICATOR_LIBRARIES}
-        HINTS ${APPINDICATOR_LIBRARY_DIRS} ${APPINDICATOR_LIBDIR})
-endif()
 
 if(WIN32 OR APPLE)
     add_definitions(-DFD_SETSIZE=1024)

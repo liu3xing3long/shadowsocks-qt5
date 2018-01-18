@@ -6,7 +6,6 @@
 #include "urihelper.h"
 #include "uriinputdialog.h"
 #include "sharedialog.h"
-#include "logdialog.h"
 #include "settingsdialog.h"
 #include "qrcodecapturer.h"
 
@@ -98,8 +97,6 @@ MainWindow::MainWindow(ConfigHelper *confHelper, QWidget *parent) :
             this, &MainWindow::onDisconnect);
     connect(ui->actionTestLatency, &QAction::triggered,
             this, &MainWindow::onLatencyTest);
-    connect(ui->actionViewLog, &QAction::triggered,
-            this, &MainWindow::onViewLog);
     connect(ui->actionMoveUp, &QAction::triggered, this, &MainWindow::onMoveUp);
     connect(ui->actionMoveDown, &QAction::triggered,
             this, &MainWindow::onMoveDown);
@@ -342,16 +339,6 @@ void MainWindow::onLatencyTest()
                    row())->testLatency();
 }
 
-void MainWindow::onViewLog()
-{
-    Connection *con = model->getItem(
-                proxyModel->mapToSource(ui->connectionView->currentIndex()).
-                row())->getConnection();
-    LogDialog *logDlg = new LogDialog(con, this);
-    connect(logDlg, &LogDialog::finished, logDlg, &LogDialog::deleteLater);
-    logDlg->exec();
-}
-
 void MainWindow::onMoveUp()
 {
     QModelIndex proxyIndex = ui->connectionView->currentIndex();
@@ -424,7 +411,6 @@ void MainWindow::checkCurrentIndex(const QModelIndex &_index)
     ui->actionEdit->setEnabled(valid);
     ui->actionDelete->setEnabled(valid);
     ui->actionShare->setEnabled(valid);
-    ui->actionViewLog->setEnabled(valid);
     ui->actionMoveUp->setEnabled(valid ? _index.row() > 0 : false);
     ui->actionMoveDown->setEnabled(valid ?
                                    _index.row() < model->rowCount() - 1 :
@@ -447,7 +433,7 @@ void MainWindow::onAbout()
 {
     QString text = QString("<h1>Shadowsocks-Qt5</h1><p><b>Version %1</b><br />"
             "Using libQtShadowsocks %2</p>"
-            "<p>Copyright © 2014-2017 Symeon Huang "
+            "<p>Copyright © 2014-2018 Symeon Huang "
             "(<a href='https://twitter.com/librehat'>"
             "@librehat</a>)</p>"
             "<p>License: <a href='http://www.gnu.org/licenses/lgpl.html'>"
@@ -456,7 +442,7 @@ void MainWindow::onAbout()
             "<a href='https://github.com/shadowsocks/shadowsocks-qt5'>"
             "GitHub</a></p>")
             .arg(QStringLiteral(APP_VERSION))
-            .arg(QSS::Common::version().data());
+            .arg(QSS::Common::version());
     QMessageBox::about(this, tr("About"), text);
 }
 
@@ -539,8 +525,6 @@ void MainWindow::setupActionIcon()
     ui->actionQRCode->setIcon(QIcon::fromTheme("edit-image-face-recognize",
                               QIcon::fromTheme("insert-image")));
     ui->actionScanQRCodeCapturer->setIcon(ui->actionQRCode->icon());
-    ui->actionViewLog->setIcon(QIcon::fromTheme("view-list-text",
-                               QIcon::fromTheme("text-x-preview")));
     ui->actionGeneralSettings->setIcon(QIcon::fromTheme("configure",
                                        QIcon::fromTheme("preferences-desktop")));
     ui->actionReportBug->setIcon(QIcon::fromTheme("tools-report-bug",

@@ -72,12 +72,10 @@ void ConfigHelper::importGuiConfigJson(ConnectionTableModel *model, const QStrin
     for (QJsonArray::iterator it = CONFArray.begin(); it != CONFArray.end(); ++it) {
         QJsonObject json = (*it).toObject();
         SQProfile p;
-        /*
-         * shadowsocks-csharp uses remarks to store profile name, which is different from
-         * old shadowsocks-qt5's implementation. It also uses int to store ports directly
-         * and it doesn't have some certain keys.
-         */
-        if (json.contains("remarks")) {
+        if (!json["server_port"].isString()) {
+            /*
+             * shadowsocks-csharp uses integers to store ports directly.
+             */
             p.name = json["remarks"].toString();
             p.serverPort = json["server_port"].toInt();
             //shadowsocks-csharp has only global local port (all profiles use the same port)
@@ -90,6 +88,9 @@ void ConfigHelper::importGuiConfigJson(ConnectionTableModel *model, const QStrin
                 p.localAddress = QString("0.0.0.0");
             }
         } else {
+            /*
+             * Otherwise, the gui-config is from legacy shadowsocks-qt5 (v0.x)
+             */
             p.name = json["profile"].toString();
             p.serverPort = json["server_port"].toString().toUShort();
             p.localAddress = json["local_address"].toString();
@@ -241,13 +242,6 @@ void ConfigHelper::read(ConnectionTableModel *model)
         QVariant value = settings->value("SQProfile");
         SQProfile profile = value.value<SQProfile>();
         checkProfileDataUsageReset(profile);
-        if (configVer < 2.5) {
-            profile.httpMode = false;
-        }
-        if (configVer < 2.6) {
-            qCritical() << "configVer" << configVer << " < 2.6";
-            profile.onetimeAuth = false;
-        }
         Connection *con = new Connection(profile, this);
         model->appendConnection(con);
     }
@@ -298,7 +292,7 @@ void ConfigHelper::startAllAutoStart(const ConnectionTableModel& model)
 void ConfigHelper::setStartAtLogin()
 {
     QString applicationName = "Shadowsocks-Qt5";
-    QString applicationFilePath = QCoreApplication::applicationFilePath();
+    QString applicationFilePath = QDir::toNativeSeparators(QCoreApplication::applicationFilePath());
 #if defined(Q_OS_WIN)
     QSettings settings("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings::NativeFormat);
 #elif defined(Q_OS_LINUX)
